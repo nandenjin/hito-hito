@@ -10,6 +10,9 @@ import processing.serial.*;
 import cc.arduino.*;
 Arduino arduino;
 
+import websockets.*;
+WebsocketClient wsc;
+
 int INPUT_PIN_A = 2;
 int INPUT_PIN_B = 3;
 
@@ -24,6 +27,8 @@ ArrayList<Particle> particles;
 int AREA_RADUIS = 300;
 
 int PARTICLES_PER_STEP = 10;
+float PARTICLE_NUM_POWER = 0.1;
+float PERTICLE_DECAY_POWER = 0.05;
 
 float ACTION_THRESHOLD = 0.005;
 
@@ -45,6 +50,8 @@ void setup() {
   size( 800, 800 );
 
   // arduino = new Arduino( this, Arduino.list()[2], 57600 );
+
+  wsc = new WebsocketClient( this, "ws://localhost:8080" );
 
   sigA = new SignalProcessor();
   sigB = new SignalProcessor();
@@ -78,7 +85,9 @@ void draw() {
 
   if( step == 0 && sigA.diff() > ACTION_THRESHOLD ) {
 
-    for( int i = 0; i < PARTICLES_PER_STEP + random( PARTICLES_PER_STEP / 2 ); i++ ) {
+    int num = (int)( ( PARTICLES_PER_STEP + random( PARTICLES_PER_STEP / 2 ) ) * ( sigA.diff() / ACTION_THRESHOLD * PARTICLE_NUM_POWER ) );
+
+    for( int i = 0; i < num; i++ ) {
 
       Particle particle = new Particle();
       particle.position.set( INITIAL_POSITION_A.clone() );
@@ -86,11 +95,25 @@ void draw() {
       float sl = INITIAL_SPEED_LENGTH + random( 3 );
       float sr = INITIAL_SPEED_RADIAN_A + random( -0.5, 0.5 );
 
+      float decay = sigA.diff() / ACTION_THRESHOLD * PERTICLE_DECAY_POWER;
+      decay = min( max( decay, 0.3 ), 0.8 );
+
       particle.speed.setXY( sl * cos( sr ), sl * sin( sr ) );
       particle.size = INITIAL_SIZE + random( INITIAL_SIZE / 2 );
       particle.col = color( huePosition, 255, 255 );
+      particle.decay = decay;
 
       particles.add( particle );
+
+      JSONObject j = new JSONObject();
+      j.setInt( "num", num );
+      j.setFloat( "speedLength", sl );
+      j.setFloat( "speedRadian", sr );
+      j.setFloat( "size", particle.size );
+      j.setFloat( "color", huePosition );
+      j.setFloat( "decay", decay );
+
+      wsc.sendMessage( j.toString() );
 
     }
 

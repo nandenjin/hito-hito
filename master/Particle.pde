@@ -5,6 +5,7 @@ class Particle {
   Position speed = new Position( 1, 1 );
   color col = color( 255, 230, 255 );
   float size = 0;
+  float decay = 0.3;
 
   float _size = 0;
 
@@ -13,7 +14,7 @@ class Particle {
     _size += ( size - _size ) / 10;
     position.add( speed );
 
-    size = max( size - 0.3, 0 );
+    size = max( size - decay, 0 );
 
   }
 
