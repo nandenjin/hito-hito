@@ -1,0 +1,14 @@
+{
+  "name": "hito-hito",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/nandenjin/hito-hito.git",
+  "author": "Kazumi Inada <timer.ground.gm@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ws": "^6.1.3"
+  }
+}
