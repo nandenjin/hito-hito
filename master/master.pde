@@ -13,8 +13,8 @@ Arduino arduino;
 import websockets.*;
 WebsocketClient wsc;
 
-int INPUT_PIN_A = 2;
-int INPUT_PIN_B = 3;
+int INPUT_PIN_A = 0;
+int INPUT_PIN_B = 1;
 
 SignalProcessor sigA;
 SignalProcessor sigB;
@@ -48,8 +48,9 @@ void setup() {
 
   // fullScreen();
   size( 800, 800 );
-
-  // arduino = new Arduino( this, Arduino.list()[2], 57600 );
+  
+  println( Arduino.list() );
+  arduino = new Arduino( this, Arduino.list()[7], 57600 );
 
   wsc = new WebsocketClient( this, "ws://localhost:8080" );
 
@@ -74,11 +75,13 @@ void draw() {
   translate( width / 2, height / 2 );
   blendMode( ADD );
 
-  //float a = arduino.analogRead( INPUT_PIN_A ) / 1024;
-  //float b = arduino.analogRead( INPUT_PIN_B ) / 1024;
+  float a = (float)arduino.analogRead( INPUT_PIN_A ) / 1024;
+  float b = (float)arduino.analogRead( INPUT_PIN_B ) / 1024;
+  
+  println( arduino.analogRead( INPUT_PIN_A ) );
 
-  float a = (float)mouseX / width;
-  float b = 0;
+  // float a = (float)mouseX / width;
+  // float b = 0;
 
   sigA.push( a );
   sigB.push( b );
@@ -110,7 +113,7 @@ void draw() {
       j.setFloat( "speedLength", sl );
       j.setFloat( "speedRadian", sr );
       j.setFloat( "size", particle.size );
-      j.setFloat( "color", huePosition );
+      j.setFloat( "color", particle.col );
       j.setFloat( "decay", decay );
 
       wsc.sendMessage( j.toString() );
