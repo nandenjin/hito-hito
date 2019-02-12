@@ -13,6 +13,9 @@ Arduino arduino;
 import websockets.*;
 WebsocketClient wsc;
 
+import processing.sound.*;
+SoundFile file;
+
 int WIDTH = 800;
 int HEIGHT = 800;
 
@@ -48,14 +51,17 @@ int huePosition = 0;
 
 boolean calib = true;
 
+SoundFile soundFile;
+float soundAmp = 0;
+
 void setup() {
 
   colorMode( HSB, 100 );
 
-  // fullScreen();
+  //fullScreen();
   size( 800, 800 );
 
-  // println( Arduino.list() );
+  println( Arduino.list() );
   // arduino = new Arduino( this, Arduino.list()[7], 57600 );
 
   wsc = new WebsocketClient( this, "ws://localhost:8080" );
@@ -67,6 +73,10 @@ void setup() {
 
   INITIAL_POSITION_A = new Position( -WIDTH / 2, HEIGHT / 2 );
   INITIAL_POSITION_B = new Position( WIDTH / 2, HEIGHT / 2 );
+
+  soundFile = new SoundFile(this, "loop.wav");
+  soundFile.amp(0);
+  soundFile.loop();
 
   frameRate( 30 );
 
@@ -215,6 +225,9 @@ void draw() {
     ellipse( WIDTH / 2, HEIGHT / 2, 120, 120 );
 
   }
+
+  soundAmp += ( min( (float)particles.size() / 10, 1.0 ) - soundAmp ) / 40;
+  soundFile.amp( soundAmp );
 
   popMatrix();
 
