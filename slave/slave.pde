@@ -78,6 +78,7 @@ void draw() {
 
   pushMatrix();
   translate( width / 2, height / 2 );
+  scale( -1, 1 );
   blendMode( ADD );
 
   println( hasNext );

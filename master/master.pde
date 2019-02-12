@@ -46,9 +46,9 @@ void setup() {
 
   colorMode( HSB );
 
-  // fullScreen();
-  size( 800, 800 );
-  
+  fullScreen();
+  // size( 800, 800 );
+
   println( Arduino.list() );
   arduino = new Arduino( this, Arduino.list()[7], 57600 );
 
@@ -78,8 +78,6 @@ void draw() {
   float a = (float)arduino.analogRead( INPUT_PIN_A ) / 1024;
   float b = (float)arduino.analogRead( INPUT_PIN_B ) / 1024;
   
-  println( arduino.analogRead( INPUT_PIN_A ) );
-
   // float a = (float)mouseX / width;
   // float b = 0;
 
