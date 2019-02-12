@@ -110,8 +110,9 @@ void draw() {
 
       particle.speed.setXY( sl * cos( sr ), sl * sin( sr ) );
       particle.size = INITIAL_SIZE + random( INITIAL_SIZE / 2 );
-      particle.col = color( huePosition + 45, 255, 255 );
+      particle.col = color( huePosition + 60, 255, 255 );
       particle.decay = decay;
+      particle.blinkOffset = PI;
 
       particles.add( particle );
 
@@ -121,6 +122,7 @@ void draw() {
       j.setFloat( "y", particle.position.y );
       j.setFloat( "speedLength", sl );
       j.setFloat( "speedRadian", sr );
+      j.setFloat( "blinkOffset", particle.blinkOffset );
       j.setFloat( "size", particle.size );
       j.setFloat( "color", particle.col );
       j.setFloat( "decay", decay );
@@ -149,8 +151,9 @@ void draw() {
 
       particle.speed.setXY( sl * cos( sr ), sl * sin( sr ) );
       particle.size = INITIAL_SIZE + random( INITIAL_SIZE / 2 );
-      particle.col = color( huePosition - 11, 255, 255 );
+      particle.col = color( huePosition - 10, 255, 255 );
       particle.decay = decay;
+      particle.blinkOffset = 0;
 
       particles.add( particle );
 
@@ -160,6 +163,7 @@ void draw() {
       j.setFloat( "y", particle.position.y );
       j.setFloat( "speedLength", sl );
       j.setFloat( "speedRadian", sr );
+      j.setFloat( "blinkOffset", particle.blinkOffset );
       j.setFloat( "size", particle.size );
       j.setFloat( "color", particle.col );
       j.setFloat( "decay", decay );

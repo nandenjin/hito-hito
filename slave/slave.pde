@@ -59,7 +59,7 @@ ArrayList<JSONObject> queues;
 
 void setup() {
 
-  colorMode( HSB );
+  colorMode( HSB, 100 );
 
   // fullScreen();
   size( 800, 800 );
@@ -135,6 +135,7 @@ void webSocketEvent( String msg ){
 
   float x = in.getFloat( "x" );
   float y = in.getFloat( "y" );
+  float b = in.getFloat( "blinkOffset" );
 
   Particle particle = new Particle();
   particle.position.setXY( x, y );
@@ -143,6 +144,7 @@ void webSocketEvent( String msg ){
   particle.size = size;
   particle.col = col;
   particle.decay = decay;
+  particle.blinkOffset = b;
 
   particles.add( particle );
 

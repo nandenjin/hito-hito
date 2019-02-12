@@ -1,4 +1,6 @@
 
+int BLINK_CYCLE = 2000;
+
 class Particle {
 
   Position position = new Position( 0, 0 );
@@ -6,6 +8,7 @@ class Particle {
   color col = color( 255, 230, 255 );
   float size = 0;
   float decay = 0.3;
+  float blinkOffset = 0;
 
   float _size = 0;
 
@@ -19,7 +22,8 @@ class Particle {
   void render() {
 
     noStroke();
-    fill( col );
+    float opacity = ( sin( (float)millis() / BLINK_CYCLE * PI + blinkOffset ) + 1 ) / 2;
+    fill( color( hue( col ), saturation( col ), brightness( col ), ( opacity * 0.7 + 0.3 ) * 100 ) );
     ellipse( position.x, position.y, _size, _size );
 
   }
