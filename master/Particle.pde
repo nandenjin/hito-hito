@@ -23,7 +23,7 @@ class Particle {
 
     noStroke();
     float opacity = ( sin( (float)millis() / BLINK_CYCLE * PI + blinkOffset ) + 1 ) / 2;
-    fill( color( hue( col ), saturation( col ), brightness( col ), ( opacity * 0.7 + 0.3 ) * 100 ) );
+    fill( color( hue( col ), saturation( col ), brightness( col ), ( opacity ) * 100 ) );
     ellipse( position.x, position.y, _size, _size );
 
   }

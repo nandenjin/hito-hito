@@ -23,7 +23,7 @@ SignalProcessor sigA;
 SignalProcessor sigB;
 
 int step = 0;
-int STEP_LENGTH = 10;
+int STEP_LENGTH = 5;
 
 ArrayList<Particle> particles;
 
@@ -33,14 +33,14 @@ int PARTICLES_PER_STEP = 30;
 float PARTICLE_NUM_POWER = 0.1;
 float PERTICLE_DECAY_POWER = 0.05;
 
-float ACTION_THRESHOLD = 0.002;
+float ACTION_THRESHOLD = 0.003;
 float STRENGTH_MAX = 2;
 
 Position INITIAL_POSITION_A;
 Position INITIAL_POSITION_B;
 float INITIAL_SPEED_LENGTH = 6;
-float INITIAL_SPEED_RADIAN_A = radians( -22.5 );
-float INITIAL_SPEED_RADIAN_B = radians( -135 - 22.5 );
+float INITIAL_SPEED_RADIAN_A = radians( -15 );
+float INITIAL_SPEED_RADIAN_B = radians( -135 - 30 );
 
 float INITIAL_SIZE = 60;
 
@@ -78,8 +78,12 @@ void draw() {
   translate( width / 2, height / 2 );
   blendMode( ADD );
 
-  // float a = (float)arduino.analogRead( INPUT_PIN_A ) / 1024;
-  // float b = (float)arduino.analogRead( INPUT_PIN_B ) / 1024;
+   // float a = (float)arduino.analogRead( INPUT_PIN_A ) / 1024;
+   // float b = (float)arduino.analogRead( INPUT_PIN_B ) / 1024;
+   //
+   // print(a);
+   // print(' ');
+   // println(b);
 
   float a = (float)mouseX / width;
   float b = (float)mouseY / width;
@@ -90,10 +94,14 @@ void draw() {
   float strengthA = min( sigA.diff() / ACTION_THRESHOLD, STRENGTH_MAX );
   float strengthB = min( sigB.diff() / ACTION_THRESHOLD, STRENGTH_MAX );
 
+  float vA = sigA.avg();
+  float vB = sigB.avg();
+
+  println( vB );
 
   background( 0 );
 
-  if( step == 0 && strengthA >= 1 ) {
+  if( step == 0 && strengthA >= 1 && vA >= 0.5 ) {
 
     int num = (int)( ( PARTICLES_PER_STEP + random( PARTICLES_PER_STEP / 2 ) ) * ( strengthA * PARTICLE_NUM_POWER ) );
 
@@ -134,7 +142,7 @@ void draw() {
   }
 
 
-  if( step == 0 && strengthB >= 1 ) {
+  if( step == 0 && strengthB >= 1 && vB >= 0.5 ) {
 
     int num = (int)( ( PARTICLES_PER_STEP + random( PARTICLES_PER_STEP / 2 ) ) * ( strengthB * PARTICLE_NUM_POWER ) );
 
