@@ -188,7 +188,7 @@ void draw() {
     float d = sqrt( p.x * p.x + p.y * p.y );
 
     if( p.x < -WIDTH / 2 || WIDTH / 2 < p.x || p.y < -HEIGHT / 2 || HEIGHT / 2 < p.y )
-      particle._size = 0;
+      particle.size = 0;
 
     if( particle._size <= 1 ) particles.remove( i );
 

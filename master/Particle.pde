@@ -20,7 +20,7 @@ class Particle {
 
     noStroke();
     fill( col );
-    ellipse( position.x + _size / 2, position.y + _size / 2, _size, _size );
+    ellipse( position.x, position.y, _size, _size );
 
   }
 
