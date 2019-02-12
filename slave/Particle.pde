@@ -14,15 +14,13 @@ class Particle {
     _size += ( size - _size ) / 10;
     position.add( speed );
 
-    size = max( size - decay, 0 );
-
   }
 
   void render() {
 
     noStroke();
     fill( col );
-    ellipse( position.x, position.y, size, size );
+    ellipse( position.x + _size / 2, position.y + _size / 2, _size, _size );
 
   }
 

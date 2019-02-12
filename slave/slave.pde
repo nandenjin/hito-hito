@@ -13,6 +13,9 @@ Arduino arduino;
 import websockets.*;
 WebsocketClient wsc;
 
+int WIDTH = 800;
+int HEIGHT = 800;
+
 int INPUT_PIN_A = 2;
 int INPUT_PIN_B = 3;
 
@@ -23,17 +26,19 @@ ArrayList<Particle> particles;
 
 int AREA_RADUIS = 300;
 
-int PARTICLES_PER_STEP = 10;
+
+int PARTICLES_PER_STEP = 30;
 float PARTICLE_NUM_POWER = 0.1;
 float PERTICLE_DECAY_POWER = 0.05;
 
-float ACTION_THRESHOLD = 0.005;
+float ACTION_THRESHOLD = 0.002;
+float STRENGTH_MAX = 2;
 
 Position INITIAL_POSITION_A;
 Position INITIAL_POSITION_B;
-float INITIAL_SPEED_LENGTH = 3;
-float INITIAL_SPEED_RADIAN_A = radians( 30 );
-float INITIAL_SPEED_RADIAN_B = radians( 210 );
+float INITIAL_SPEED_LENGTH = 6;
+float INITIAL_SPEED_RADIAN_A = radians( -22.5 );
+float INITIAL_SPEED_RADIAN_B = radians( -135 - 22.5 );
 
 float INITIAL_SIZE = 60;
 
@@ -64,13 +69,10 @@ void setup() {
   particles = new ArrayList<Particle>();
   queues = new ArrayList<JSONObject>();
 
-  float pra = radians( 210 );
-  INITIAL_POSITION_A = new Position( AREA_RADUIS * cos( pra ), AREA_RADUIS * sin( pra ) );
+  INITIAL_POSITION_A = new Position( -WIDTH / 2, HEIGHT / 2 );
+  INITIAL_POSITION_B = new Position( WIDTH / 2, HEIGHT / 2 );
 
-  float prb = radians( 30 );
-  INITIAL_POSITION_B = new Position( AREA_RADUIS * cos( prb ), AREA_RADUIS * sin( prb ) );
-
-  frameRate( 60 );
+  frameRate( 30 );
 
 }
 
@@ -81,35 +83,6 @@ void draw() {
   scale( -1, 1 );
   blendMode( ADD );
 
-  println( hasNext );
-
-  for( int i = queues.size() - 1; i >= 0; i-- ) {
-
-    JSONObject in = queues.get( i );
-
-    size = in.getFloat( "size" );
-    num = in.getInt( "num" );
-    col = in.getInt( "color" );
-    decay = in.getFloat( "decay" );
-    speedLength = in.getFloat( "speedLength" );
-    speedRadian = in.getFloat( "speedRadian" );
-
-    Particle particle = new Particle();
-    particle.position.set( INITIAL_POSITION_A.clone() );
-
-    float sl = INITIAL_SPEED_LENGTH + random( 3 );
-    float sr = INITIAL_SPEED_RADIAN_A + random( -0.5, 0.5 );
-
-    particle.speed.setXY( sl * cos( sr ), sl * sin( sr ) );
-    particle.size = size;
-    particle.col = col;
-    particle.decay = decay;
-
-    particles.add( particle );
-
-    queues.remove( i );
-
-  }
 
   background( 0 );
 
@@ -125,11 +98,8 @@ void draw() {
     Position p = particle.position;
     float d = sqrt( p.x * p.x + p.y * p.y );
 
-    Position f = new Position( -p.x / d, -p.y / d );
-
-    if( d > AREA_RADUIS ) {
-      particle.speed.add( f );
-    }
+    if( p.x < -WIDTH / 2 || WIDTH / 2 < p.x || p.y < -HEIGHT / 2 || HEIGHT / 2 < p.y )
+      particle.size = 0;
 
     if( particle.size <= 0 ) particles.remove( i );
 
@@ -144,6 +114,24 @@ void webSocketEvent( String msg ){
   println( msg );
   JSONObject in = parseJSONObject( msg );
 
-  queues.add( in );
+  size = in.getFloat( "size" );
+  num = in.getInt( "num" );
+  col = in.getInt( "color" );
+  decay = in.getFloat( "decay" );
+  speedLength = in.getFloat( "speedLength" );
+  speedRadian = in.getFloat( "speedRadian" );
+
+  float x = in.getFloat( "x" );
+  float y = in.getFloat( "y" );
+
+  Particle particle = new Particle();
+  particle.position.setXY( x, y );
+
+  particle.speed.setXY( speedLength * cos( speedRadian ), speedLength * sin( speedRadian ) );
+  particle.size = size;
+  particle.col = col;
+  particle.decay = decay;
+
+  particles.add( particle );
 
 }

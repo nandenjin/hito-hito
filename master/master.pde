@@ -13,6 +13,9 @@ Arduino arduino;
 import websockets.*;
 WebsocketClient wsc;
 
+int WIDTH = 800;
+int HEIGHT = 800;
+
 int INPUT_PIN_A = 0;
 int INPUT_PIN_B = 1;
 
@@ -26,17 +29,18 @@ ArrayList<Particle> particles;
 
 int AREA_RADUIS = 300;
 
-int PARTICLES_PER_STEP = 10;
+int PARTICLES_PER_STEP = 30;
 float PARTICLE_NUM_POWER = 0.1;
 float PERTICLE_DECAY_POWER = 0.05;
 
-float ACTION_THRESHOLD = 0.005;
+float ACTION_THRESHOLD = 0.002;
+float STRENGTH_MAX = 2;
 
 Position INITIAL_POSITION_A;
 Position INITIAL_POSITION_B;
-float INITIAL_SPEED_LENGTH = 3;
-float INITIAL_SPEED_RADIAN_A = radians( 30 );
-float INITIAL_SPEED_RADIAN_B = radians( 210 );
+float INITIAL_SPEED_LENGTH = 6;
+float INITIAL_SPEED_RADIAN_A = radians( -22.5 );
+float INITIAL_SPEED_RADIAN_B = radians( -135 - 22.5 );
 
 float INITIAL_SIZE = 60;
 
@@ -44,13 +48,13 @@ int huePosition = 0;
 
 void setup() {
 
-  colorMode( HSB );
+  colorMode( HSB, 100 );
 
-  fullScreen();
-  // size( 800, 800 );
+  // fullScreen();
+  size( 800, 800 );
 
-  println( Arduino.list() );
-  arduino = new Arduino( this, Arduino.list()[7], 57600 );
+  // println( Arduino.list() );
+  // arduino = new Arduino( this, Arduino.list()[7], 57600 );
 
   wsc = new WebsocketClient( this, "ws://localhost:8080" );
 
@@ -59,13 +63,10 @@ void setup() {
 
   particles = new ArrayList<Particle>();
 
-  float pra = radians( 210 );
-  INITIAL_POSITION_A = new Position( AREA_RADUIS * cos( pra ), AREA_RADUIS * sin( pra ) );
+  INITIAL_POSITION_A = new Position( -WIDTH / 2, HEIGHT / 2 );
+  INITIAL_POSITION_B = new Position( WIDTH / 2, HEIGHT / 2 );
 
-  float prb = radians( 30 );
-  INITIAL_POSITION_B = new Position( AREA_RADUIS * cos( prb ), AREA_RADUIS * sin( prb ) );
-
-  frameRate( 60 );
+  frameRate( 30 );
 
 }
 
@@ -75,39 +76,86 @@ void draw() {
   translate( width / 2, height / 2 );
   blendMode( ADD );
 
-  float a = (float)arduino.analogRead( INPUT_PIN_A ) / 1024;
-  float b = (float)arduino.analogRead( INPUT_PIN_B ) / 1024;
-  
-  // float a = (float)mouseX / width;
-  // float b = 0;
+  // float a = (float)arduino.analogRead( INPUT_PIN_A ) / 1024;
+  // float b = (float)arduino.analogRead( INPUT_PIN_B ) / 1024;
+
+  float a = (float)mouseX / width;
+  float b = (float)mouseY / width;
 
   sigA.push( a );
   sigB.push( b );
 
-  if( step == 0 && sigA.diff() > ACTION_THRESHOLD ) {
+  float strengthA = min( sigA.diff() / ACTION_THRESHOLD, STRENGTH_MAX );
+  float strengthB = min( sigB.diff() / ACTION_THRESHOLD, STRENGTH_MAX );
 
-    int num = (int)( ( PARTICLES_PER_STEP + random( PARTICLES_PER_STEP / 2 ) ) * ( sigA.diff() / ACTION_THRESHOLD * PARTICLE_NUM_POWER ) );
+
+  background( 0 );
+
+  if( step == 0 && strengthA >= 1 ) {
+
+    int num = (int)( ( PARTICLES_PER_STEP + random( PARTICLES_PER_STEP / 2 ) ) * ( strengthA * PARTICLE_NUM_POWER ) );
 
     for( int i = 0; i < num; i++ ) {
 
       Particle particle = new Particle();
       particle.position.set( INITIAL_POSITION_A.clone() );
 
-      float sl = INITIAL_SPEED_LENGTH + random( 3 );
-      float sr = INITIAL_SPEED_RADIAN_A + random( -0.5, 0.5 );
+      float sl = INITIAL_SPEED_LENGTH * ( ( strengthA - 1 ) * 0.1 + 1 ) + random( -1.5, 1.5 );
+      float sr = INITIAL_SPEED_RADIAN_A + random( - PI / 4, PI / 4 );
 
-      float decay = sigA.diff() / ACTION_THRESHOLD * PERTICLE_DECAY_POWER;
+      float decay = strengthA * PERTICLE_DECAY_POWER;
       decay = min( max( decay, 0.3 ), 0.8 );
 
       particle.speed.setXY( sl * cos( sr ), sl * sin( sr ) );
       particle.size = INITIAL_SIZE + random( INITIAL_SIZE / 2 );
-      particle.col = color( huePosition, 255, 255 );
+      particle.col = color( huePosition + 45, 255, 255 );
       particle.decay = decay;
 
       particles.add( particle );
 
       JSONObject j = new JSONObject();
       j.setInt( "num", num );
+      j.setFloat( "x", particle.position.x );
+      j.setFloat( "y", particle.position.y );
+      j.setFloat( "speedLength", sl );
+      j.setFloat( "speedRadian", sr );
+      j.setFloat( "size", particle.size );
+      j.setFloat( "color", particle.col );
+      j.setFloat( "decay", decay );
+
+      wsc.sendMessage( j.toString() );
+
+    }
+
+  }
+
+
+  if( step == 0 && strengthB >= 1 ) {
+
+    int num = (int)( ( PARTICLES_PER_STEP + random( PARTICLES_PER_STEP / 2 ) ) * ( strengthB * PARTICLE_NUM_POWER ) );
+
+    for( int i = 0; i < num; i++ ) {
+
+      Particle particle = new Particle();
+      particle.position.set( INITIAL_POSITION_B.clone() );
+
+      float sl = INITIAL_SPEED_LENGTH * ( ( strengthB - 1 ) * 0.1 + 1 ) + random( -1.5, 1.5 );
+      float sr = INITIAL_SPEED_RADIAN_B + random( - PI / 4, PI / 4 );
+
+      float decay = strengthB * PERTICLE_DECAY_POWER;
+      decay = min( max( decay, 0.3 ), 0.8 );
+
+      particle.speed.setXY( sl * cos( sr ), sl * sin( sr ) );
+      particle.size = INITIAL_SIZE + random( INITIAL_SIZE / 2 );
+      particle.col = color( huePosition - 11, 255, 255 );
+      particle.decay = decay;
+
+      particles.add( particle );
+
+      JSONObject j = new JSONObject();
+      j.setInt( "num", num );
+      j.setFloat( "x", particle.position.x );
+      j.setFloat( "y", particle.position.y );
       j.setFloat( "speedLength", sl );
       j.setFloat( "speedRadian", sr );
       j.setFloat( "size", particle.size );
@@ -123,10 +171,8 @@ void draw() {
   step++;
   if( step >= STEP_LENGTH ) step -= STEP_LENGTH;
 
-  huePosition++;
-  if( huePosition >= 255 ) huePosition -= 255;
-
-  background( 0 );
+  huePosition = floor( ( sin( (float)millis() / 10000 * PI * 2 ) + 1 ) / 2 * 33 );
+  println( huePosition );
 
   // println( particles.length );
 
@@ -140,15 +186,14 @@ void draw() {
     Position p = particle.position;
     float d = sqrt( p.x * p.x + p.y * p.y );
 
-    Position f = new Position( -p.x / d, -p.y / d );
+    if( p.x < -WIDTH / 2 || WIDTH / 2 < p.x || p.y < -HEIGHT / 2 || HEIGHT / 2 < p.y )
+      particle._size = 0;
 
-    if( d > AREA_RADUIS ) {
-      particle.speed.add( f );
-    }
-
-    if( particle.size <= 0 ) particles.remove( i );
+    if( particle._size <= 1 ) particles.remove( i );
 
   }
+
+
 
   popMatrix();
 
