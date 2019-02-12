@@ -44,6 +44,8 @@ float INITIAL_SIZE = 60;
 
 int huePosition = 0;
 
+boolean calib = true;
+
 
 boolean hasNext = false;
 float size = 0;
@@ -105,6 +107,16 @@ void draw() {
 
   }
 
+  if( calib ) {
+
+    fill( 0, 0, 255 );
+    ellipse( -WIDTH / 2, -HEIGHT / 2, 120, 120 );
+    ellipse( -WIDTH / 2, HEIGHT / 2, 120, 120 );
+    ellipse( WIDTH / 2, -HEIGHT / 2, 120, 120 );
+    ellipse( WIDTH / 2, HEIGHT / 2, 120, 120 );
+
+  }
+
   popMatrix();
 
 }
@@ -133,5 +145,11 @@ void webSocketEvent( String msg ){
   particle.decay = decay;
 
   particles.add( particle );
+
+}
+
+void keyPressed() {
+
+  calib = !calib;
 
 }

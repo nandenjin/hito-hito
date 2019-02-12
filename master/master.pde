@@ -46,6 +46,8 @@ float INITIAL_SIZE = 60;
 
 int huePosition = 0;
 
+boolean calib = true;
+
 void setup() {
 
   colorMode( HSB, 100 );
@@ -172,7 +174,6 @@ void draw() {
   if( step >= STEP_LENGTH ) step -= STEP_LENGTH;
 
   huePosition = floor( ( sin( (float)millis() / 10000 * PI * 2 ) + 1 ) / 2 * 33 );
-  println( huePosition );
 
   // println( particles.length );
 
@@ -193,8 +194,22 @@ void draw() {
 
   }
 
+  if( calib ) {
 
+    fill( 0, 0, 255 );
+    ellipse( -WIDTH / 2, -HEIGHT / 2, 120, 120 );
+    ellipse( -WIDTH / 2, HEIGHT / 2, 120, 120 );
+    ellipse( WIDTH / 2, -HEIGHT / 2, 120, 120 );
+    ellipse( WIDTH / 2, HEIGHT / 2, 120, 120 );
+
+  }
 
   popMatrix();
+
+}
+
+void keyPressed() {
+
+  calib = !calib;
 
 }
